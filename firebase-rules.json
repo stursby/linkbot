@@ -1,0 +1,9 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "links": {
+      ".indexOn": ["url"]
+    }
+  }
+}
