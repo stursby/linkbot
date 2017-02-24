@@ -1,0 +1,12 @@
+{
+  "name": "linkbot",
+  "version": "0.1.0",
+  "main": "bot.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.15.3",
+    "botkit": "^0.5.1",
+    "dotenv": "^4.0.0",
+    "get-urls": "^7.0.0"
+  }
+}
