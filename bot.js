@@ -8,7 +8,9 @@ require('dotenv').config({ silent: true })
 // Dependencies
 const axios = require('axios')
 const getUrls = require('get-urls')
+const timeago = require('timeago.js')
 const querystring = require('querystring')
+const normalizeUrl = require('normalize-url')
 const Botkit = require('botkit')
 const controller = Botkit.slackbot()
 
@@ -34,7 +36,7 @@ bot.startRTM((err, bot, payload) => {
 function saveLink(url, message) {
   const { channel, user } = message
   return db.post('links.json', {
-    url,
+    url: normalizeUrl(url, { normalizeHttps: true }),
     channel,
     user,
     created: Date.now()
@@ -43,9 +45,10 @@ function saveLink(url, message) {
 
 // Find link in the DB
 function findLink(url, message) {
+  const urlQuery = encodeURIComponent(normalizeUrl(url, { normalizeHttps: true }))
   const params = querystring.stringify({
     orderBy: '\"url\"',
-    equalTo: `\"${url}\"`
+    equalTo: `\"${urlQuery}\"`
   })
   return db.get(`links.json?${params}`).then((res) => {
     if (res.status === 200 && !isEmpty(res.data)) {
@@ -65,7 +68,16 @@ function extractUrls(str) {
   const sanitized = str
     .replace(/\|[^>]*/g, '') // remove | in some URLs
     .replace(/[<>]/g, '') // remove all < > from str
-  return  Array.from(getUrls(sanitized))
+  return Array.from(getUrls(sanitized))
+}
+
+function fetchUserInfo(userID) {
+  return axios.get('https://slack.com/api/users.info', {
+    params: {
+      token: process.env.SLACK_API_TOKEN,
+      user: userID
+    }
+  })
 }
 
 // Listen for 'ambient' aka any new message
@@ -75,7 +87,16 @@ controller.on('ambient', (bot, message) => {
   for (url of urls) {
     findLink(url, message).then((link) => {
       if (link && !isEmpty(link)) {
-        bot.reply(message, `The link [${link.url}] has already been posted!`)
+        fetchUserInfo(link.user).then((res) => {
+          const msg = (res.data.ok)
+            ? `@${res.data.user.name} posted this`
+            : 'This link was posted'
+          const prettyTime = new timeago().format(link.created)
+          const body = `Pssst. ${msg} ${prettyTime}. [${link.url}]`
+          bot.startPrivateConversation(message, (err, dm) => {
+            dm.say(body)
+          })
+        })
       }
     }).catch(err => console.log(err))
   }
