@@ -4,8 +4,8 @@
   "main": "bot.js",
   "license": "MIT",
   "scripts": {
-    "start": "node bot.js",
-    "deploy:functions": "firebase deploy --only functions"
+    "start:slack": "node bot.js",
+    "start:twitter": "node twitter.js"
   },
   "dependencies": {
     "axios": "^0.15.3",
