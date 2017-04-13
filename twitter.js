@@ -41,6 +41,10 @@ linksRef.limitToLast(1).on('child_added', (snapshot) => {
 
   // Tweet! 🐦
   const { url } = snapshot.val()
+  if (url.includes('twitter.com/minnecrapolinks')) {
+    // No self-referencing, dickhole.
+    return
+  }
   T.post('statuses/update', { status: url }, (err, data, response) => {
     if (err) {
       console.log(err)
