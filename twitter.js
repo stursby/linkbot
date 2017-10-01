@@ -49,7 +49,7 @@ linksRef.limitToLast(1).on('child_added', (snapshot) => {
     if (err) {
       console.log(err)
     }
-    console.log(data)
+    // console.log(data)
   })
 
 })
