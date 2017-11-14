@@ -25,12 +25,17 @@ const bot = controller.spawn({
   token: process.env.SLACK_API_TOKEN
 })
 
-// Fire up the 🤖!
-bot.startRTM((err, bot, payload) => {
-  if (err) {
-    throw new Error('Could not connect to Slack')
-  }
-})
+// Start RTM
+function startRTM() {
+  bot.startRTM((err, bot, payload) => {
+    if (err) {
+      console.log('Failed to start RTM')
+      console.log(err)
+      return setTimeout(startRTM, 60000)
+    }
+    console.log('RTM started!')
+  })
+}
 
 // Save link to DB
 function saveLink(url, message) {
@@ -101,3 +106,11 @@ controller.on('ambient', (bot, message) => {
     }).catch(err => console.log(err))
   }
 })
+
+// Reboot on RTM close
+controller.on('rtm_close', (bot, err) => {
+  startRTM()
+})
+
+// Fire up the 🤖!
+startRTM()
