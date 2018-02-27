@@ -63,7 +63,17 @@ linksRef.limitToLast(1).on('child_added', (snapshot) => {
   if (url.includes('twitter.com/minnecrapolinks')) {
     // No self-referencing, dickhole.
   }
+<<<<<<< HEAD
 
   postTweet(url, channel)
+=======
+  // T.post('statuses/update', { status: `${url} ${channel}` }, (err, data, response) => {
+  T.post('statuses/update', { status: `${url}` }, (err, data, response) => {
+    if (err) {
+      console.log(err)
+    }
+    // console.log(data)
+  })
+>>>>>>> b5036c439875bdce83157fb1bf990ebb4bab58a8
 
 })
